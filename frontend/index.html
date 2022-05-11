@@ -38,10 +38,19 @@
     <!-- dynamic bootstrap table: -->
     <table id="content-table"></table>
 
-    <div class="d-flex flex-column my-auto mt-5 align-items-center" id="loginArea">
-      <h3 class="d-block shadow-text my-auto fw-bold text-primary text-center w-25" id="loginText">Senha</h3>
+    <div class="d-none flex-column my-auto pt-5 mt-5 align-items-center w-100 h-75" id="loginArea">
+      <h3 class="d-flex justify-content-center shadow-text pt-5 mt-5 fw-bold text-primary" id="loginText">
+        Senha
+      </h3>
       <input id="inputLoginPassword" type="password" value="" autocomplete="off"
-        class="w-25 rounded-pill p-1 m-5 mt-4 text-center fw-bold fs-3">
+        class="rounded p-1 mt-4 mb-3 text-center fw-bold fs-3" />
+      <div class="form-check align-self-center d-flex align-items-center justify-content-between">
+        <input id="loginTrustedSwitch" class="form-check-input align-self-stretch" type="checkbox" />
+        <label class="form-check-label align-self-stretch mb-4" for="loginTrustedSwitch">Salvar senha</label>
+      </div>
+      <button id="loginButton" class="btn btn-success font-weight-bold">
+        ENTRAR
+      </button>
     </div>
   </div>
 

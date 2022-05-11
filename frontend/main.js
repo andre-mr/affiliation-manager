@@ -7,12 +7,16 @@ const loginArea = document.getElementById("loginArea");
 const loginField = document.getElementById("inputLoginPassword");
 const loginText = document.getElementById("loginText");
 const searchSelector = document.getElementById("searchSelector");
+const toolBar = document.getElementById("toolbar");
+const loginTrustedSwitch = document.getElementById("loginTrustedSwitch");
+const loginButton = document.getElementById("loginButton");
 
-const urlDomain = "http://localhost:3000";
+const urlDomain = 'http://localhost:3000';
 
 let resultContent = [];
 let queriesList = [];
 let apiKey;
+let apiKeyStored = false;
 
 window.addEventListener("load", () => {
   startup();
@@ -26,11 +30,13 @@ function startup() {
   endDateField.addEventListener("keyup", refreshData, false);
   updateServerButton.addEventListener("click", updateServer);
   loginField.addEventListener("keyup", submitApiKey, false);
+  loginButton.addEventListener("click", submitApiKey);
 
-  apiKey = sessionStorage.getItem("APIKEY");
+  apiKey = localStorage.getItem("APIKEY");
 
   if (apiKey) {
-    showLogin(false);
+    apiKeyStored = true;
+    populateQueriesSelector();
   } else {
     showLogin(true);
   }
@@ -51,18 +57,18 @@ function populatePresetSearches() {
   )
     .toString()
     .padStart(2, "0")}-${thisWeekStartDate
-    .getDate()
-    .toString()
-    .padStart(2, "0")}`;
+      .getDate()
+      .toString()
+      .padStart(2, "0")}`;
   let thisMonthStartDate = new Date(todayStartDate.setDate(1)); // start of current month (day 1)
   let thisMonthStartDateStr = `${thisMonthStartDate.getFullYear()}-${(
     thisMonthStartDate.getMonth() + 1
   )
     .toString()
     .padStart(2, "0")}-${thisMonthStartDate
-    .getDate()
-    .toString()
-    .padStart(2, "0")}`;
+      .getDate()
+      .toString()
+      .padStart(2, "0")}`;
 
   queriesList = [
     "",
@@ -93,16 +99,25 @@ function populatePresetSearches() {
 function showLogin(show) {
   if (show) {
     loginArea.className = loginArea.className.replace("d-none", "d-flex");
+    toolBar.className = toolBar.className.replace("d-flex", "d-none");
     loginField.focus();
   } else {
     loginArea.className = loginArea.className.replace("d-flex", "d-none");
+    toolBar.className = toolBar.className.replace("d-none", "d-flex");
   }
 }
 
 function submitApiKey(e) {
-  if (e && e.key && (e.key == "Enter" || e.keyCode == 13) && loginField.value) {
+  if (
+    (e && e.key && (e.key == "Enter" || e.keyCode == 13) && loginField.value) ||
+    e.target.id == "loginButton"
+  ) {
     apiKey = loginField.value;
-    localStorage.setItem("APIKEY", `${apiKey}`);
+    if (loginTrustedSwitch.checked) {
+      localStorage.setItem("APIKEY", `${apiKey}`);
+      apiKeyStored = true;
+    } else {
+    }
     populateQueriesSelector();
   }
 }
@@ -132,6 +147,7 @@ function populateQueriesSelector() {
         setDefaultDate();
         querySelector.dispatchEvent(new Event("change"));
         updateServer();
+
         return true;
       } else {
         loginText.innerHTML = "Senha inválida!";
@@ -142,6 +158,12 @@ function populateQueriesSelector() {
     .catch(function (err) {
       console.log("Something went wrong!", err);
     });
+}
+
+function removePassword() {
+  localStorage.removeItem("APIKEY");
+  apiKeyStored = false;
+  window.location.reload();
 }
 
 function presetSearch() {
@@ -189,7 +211,6 @@ function requestResults() {
 }
 
 function setDefaultDate() {
-  // searchSelector.selectedIndex = searchSelector.children.length - 1;
   let endDate = new Date();
   let endDateStr = `${endDate.getFullYear()}-${(endDate.getMonth() + 1)
     .toString()
@@ -251,7 +272,7 @@ function createContentTable() {
   if (resultContent.length > 10) {
     tableHeight = window.innerHeight * 0.95;
   }
-  
+
   $("#content-table").bootstrapTable("destroy");
   $("#content-table").bootstrapTable({
     locale: "pt-BR",
@@ -259,6 +280,9 @@ function createContentTable() {
     pagination: true,
     pageList: "[10, 100, 1000, all]",
     pageSize: 100,
+    formatClearSearch: function () {
+      return "Remove a senha salva e volta para a tela inicial";
+    },
     formatSearch: function () {
       return "Pesquisar";
     },
@@ -286,6 +310,7 @@ function createContentTable() {
     clickToSelect: true,
     filterControl: true,
     reorderableColumns: true,
+    showSearchClearButton: true,
     height: tableHeight,
     classes: "table table-hover table-bordered table-striped",
     columns: [
@@ -318,7 +343,7 @@ function createContentTable() {
         field: "commissionAmount",
         title: "Comissão",
         width: 10,
-        align: "center",
+        align: "right",
         sortable: "true",
         formatter: "amountFormatter",
         footerFormatter: "amountFooterFormatter",
@@ -328,7 +353,7 @@ function createContentTable() {
         field: "saleAmount",
         title: "Venda",
         width: 10,
-        align: "center",
+        align: "right",
         sortable: "true",
         formatter: "amountFormatter",
         footerFormatter: "amountFooterFormatter",
@@ -371,21 +396,48 @@ function createContentTable() {
     data: resultContent,
   });
 
-  // #region simple hack to fix bootstrap-table footer positioning issue when generating table
-  let buttons = document.getElementsByClassName("dropdown-menu");
-  let dropButton;
-  for (var i = 0; i < buttons.length; i++) {
-    if (buttons[i].classList.contains("dropdown-menu")) {
-      dropButton = buttons[i];
-    }
+  // set logout button
+  $("button[name=clearSearch]").children()[0].remove();
+  $("button[name=clearSearch]").append(
+    '<i class="fa font-weight-bold font-monospace">SAIR</i>'
+  );
+  $("button[name=clearSearch]").removeClass('btn-secondary');
+  $("button[name=clearSearch]").addClass('btn-outline-secondary');
+  if (!$("button[name=clearSearch]").hasClass("opacity-75")) {
+    $("button[name=clearSearch]").addClass("opacity-75");
   }
-  let dropButtonOptions = dropButton.children;
-  for (var i = 0; i < dropButtonOptions.length; i++) {
-    if (dropButtonOptions[i].classList.contains("active")) {
-      dropButtonOptions[i].click();
-    }
+  if (apiKeyStored) {
+    $("button[name=clearSearch]").removeClass("visually-hidden");
+    $("button[name=clearSearch]").addClass("visible");
+  } else {
+    $("button[name=clearSearch]").removeClass("visible");
+    $("button[name=clearSearch]").addClass("visually-hidden");
   }
-  // #endregion
+  $("button[name=clearSearch]").on("click", removePassword);
+
+  $("input[type=checkbox]").on("click", () => {
+    fixFooter();
+  });
+  fixFooter();
+}
+
+// simple hack to fix bootstrap-table footer positioning issue when generating table
+function fixFooter() {
+  setTimeout(() => {
+    let buttons = document.getElementsByClassName("dropdown-menu");
+    let dropButton;
+    for (var i = 0; i < buttons.length; i++) {
+      if (buttons[i].classList.contains("dropdown-menu")) {
+        dropButton = buttons[i];
+      }
+    }
+    let dropButtonOptions = dropButton.children;
+    for (var i = 0; i < dropButtonOptions.length; i++) {
+      if (dropButtonOptions[i].classList.contains("active")) {
+        dropButtonOptions[i].click();
+      }
+    }
+  }, 100);
 }
 
 function dateSorter(a, b) {
