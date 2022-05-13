@@ -2,6 +2,7 @@
 // import updateController from '../controllers/update-controller.js';
 const transactionsController = require("../controllers/transactions-controller.js");
 const updateController = require("../controllers/update-controller.js");
+const amazonController = require("../controllers/amazon-controller.js");
 
 function setupRoutes(app) {
   app.get("/", function (req, res) {
@@ -29,11 +30,11 @@ function setupRoutes(app) {
     res.send();
   });
 
-  app.get("/transactions", transactionsController.getTransactionsList);
+  app.get("/awin", transactionsController.getTransactionsList);
 
-  app.get("/clickrefs", transactionsController.getTransactionsList);
+  app.get("/amazon", amazonController.getAmazonData);
 
-  app.get("/update", updateController.updateServer);
+  app.get("/awin/update", updateController.updateServer);
 
   app.get("*", function (req, res) {
     res.statusCode = 404;
@@ -44,8 +45,8 @@ function setupRoutes(app) {
 }
 
 const queriesList = {
-  "/transactions": "Transações",
-  "/clickrefs": "Cliques (em desenv.)",
+  "/awin": "Awin",
+  "/amazon": "Amazon",
 };
 
 // export default {

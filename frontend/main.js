@@ -28,7 +28,7 @@ function startup() {
   searchButton.addEventListener("click", refreshData);
   startDateField.addEventListener("keyup", refreshData, false);
   endDateField.addEventListener("keyup", refreshData, false);
-  updateServerButton.addEventListener("click", updateServer);
+  updateServerButton.addEventListener("click", updateServerAwin);
   loginField.addEventListener("keyup", submitApiKey, false);
   loginButton.addEventListener("click", submitApiKey);
 
@@ -146,7 +146,8 @@ function populateQueriesSelector() {
         populatePresetSearches();
         setDefaultDate();
         querySelector.dispatchEvent(new Event("change"));
-        updateServer();
+        console.log('running first update server')
+        updateServerAwin();
 
         return true;
       } else {
@@ -189,6 +190,12 @@ function requestResults() {
   searchButton.classList.remove("opacity-75");
   searchButton.classList.add("opacity-50");
 
+  if (querySelector.selectedIndex == 0) {
+    updateServerButton.classList.remove('visually-hidden');
+  } else {
+    !updateServerButton.classList.contains('visually-hidden') ? updateServerButton.classList.add('visually-hidden') : null;
+  }
+
   fetch(
     `${urlDomain}${querySelector.value}?apiKey=${apiKey}&startDate=${startDateField.value}&endDate=${endDateField.value}`
   )
@@ -197,7 +204,22 @@ function requestResults() {
     })
     .then(function (data) {
       resultContent = data;
-      createContentTable();
+
+      if (querySelector.selectedIndex == 0) {
+        createContentTableAwin();
+      } else {
+        let today = new Date();
+        if (startDateField.value == (
+          `${today.getFullYear()}-${(today.getMonth() + 1)
+            .toString()
+            .padStart(2, "0")
+          }-${today.getDate().toString().padStart(2, "0")}`
+        )) {
+          createContentTableAmazonRealtime();
+        } else {
+          createContentTableAmazonEarnings();
+        }
+      }
 
       setTimeout(() => {
         searchButton.disabled = false;
@@ -237,7 +259,7 @@ function refreshData(e) {
   }
 }
 
-function updateServer() {
+function updateServerAwin() {
   if (!apiKey) {
     showLogin(true);
     return;
@@ -248,9 +270,10 @@ function updateServer() {
   searchButton.classList.remove("opacity-75");
   searchButton.classList.add("opacity-50");
   updateServerButton.innerHTML = "Atualizando...";
-  fetch(`${urlDomain}/update?apiKey=${apiKey}`)
+  fetch(`${urlDomain}/awin/update?apiKey=${apiKey}`)
     .then(function (response) {
       updateServerButton.innerHTML = "Atualizado!";
+      console.log('requesting results')
       requestResults();
 
       setTimeout(() => {
@@ -265,9 +288,9 @@ function updateServer() {
 
 //#region bootstrap-table creation
 
-//#region transactions report
+//#region awin
 
-function createContentTable() {
+function createContentTableAwin() {
   let tableHeight = "";
   if (resultContent.length > 10) {
     tableHeight = window.innerHeight * 0.95;
@@ -304,8 +327,8 @@ function createContentTable() {
     searchAccentNeutralise: true,
     searchHighlight: true,
     showFooter: true,
-    headerStyle: "headerStyle",
-    footerStyle: "headerStyle",
+    headerStyle: "headerStyleAwin",
+    footerStyle: "headerStyleAwin",
     showColumns: true,
     clickToSelect: true,
     filterControl: true,
@@ -325,14 +348,6 @@ function createContentTable() {
         visible: false,
       },
       {
-        field: "platformName",
-        title: "Plataforma",
-        width: 10,
-        align: "center",
-        sortable: "true",
-        filterControl: "select",
-      },
-      {
         field: "advertiserName",
         title: "Loja",
         width: 200,
@@ -340,8 +355,8 @@ function createContentTable() {
         filterControl: "select",
       },
       {
-        field: "commissionAmount",
-        title: "Comissão",
+        field: "saleAmount",
+        title: "Venda",
         width: 10,
         align: "right",
         sortable: "true",
@@ -350,8 +365,8 @@ function createContentTable() {
         filterControl: "input",
       },
       {
-        field: "saleAmount",
-        title: "Venda",
+        field: "commissionAmount",
+        title: "Comissão",
         width: 10,
         align: "right",
         sortable: "true",
@@ -421,6 +436,336 @@ function createContentTable() {
   fixFooter();
 }
 
+function headerStyleAwin(column) {
+  return {
+    id: {
+      css: { background: "azure", "font-size": "large" },
+    },
+    advertiserName: {
+      css: { background: "azure", "font-size": "large" },
+    },
+    commissionAmount: {
+      css: { background: "azure", "font-size": "large" },
+    },
+    saleAmount: {
+      css: { background: "azure", "font-size": "large" },
+    },
+    clickRefs: {
+      css: { background: "azure", "font-size": "large" },
+    },
+    publisherUrl: {
+      css: { background: "azure", "font-size": "large" },
+    },
+    transactionDate: {
+      css: { background: "azure", "font-size": "large" },
+    },
+    commissionStatus: {
+      css: { background: "azure", "font-size": "large" },
+    },
+  }[column.field];
+}
+
+//#endregion
+
+//#region amazon
+
+function createContentTableAmazonEarnings() {
+  let tableHeight = "";
+  if (resultContent.length > 10) {
+    tableHeight = window.innerHeight * 0.95;
+  }
+
+  $("#content-table").bootstrapTable("destroy");
+  $("#content-table").bootstrapTable({
+    locale: "pt-BR",
+    toolbar: "#toolbar",
+    pagination: true,
+    pageList: "[10, 100, 1000, all]",
+    pageSize: 100,
+    formatClearSearch: function () {
+      return "Remove a senha salva e volta para a tela inicial";
+    },
+    formatSearch: function () {
+      return "Pesquisar";
+    },
+    formatColumns: function () {
+      return "Colunas";
+    },
+    formatAllRows: function () {
+      return "Todos";
+    },
+    formatShowingRows: function (pageFrom, pageTo, totalRows) {
+      return `Mostrando ${pageFrom} a ${pageTo} de ${totalRows} registros`;
+    },
+    formatRecordsPerPage: function (pageNumber) {
+      return `${pageNumber} registros por página`;
+    },
+    formatNoMatches: function (pageNumber) {
+      return `Nenhum resultado`;
+    },
+    searchAccentNeutralise: true,
+    searchHighlight: true,
+    showFooter: true,
+    headerStyle: "headerStyleAmazonEarnings",
+    footerStyle: "headerStyleAmazonEarnings",
+    showColumns: true,
+    clickToSelect: true,
+    filterControl: true,
+    reorderableColumns: true,
+    showSearchClearButton: true,
+    height: tableHeight,
+    classes: "table table-hover table-bordered table-striped",
+    columns: [
+      {
+        field: "product_title",
+        title: "Produto",
+        width: 400,
+        align: "left",
+        sortable: "true",
+        footerFormatter: "totalFormatter",
+        filterControl: "input",
+        visible: true,
+      },
+      {
+        field: "tag_value",
+        title: "Tag ID",
+        width: 20,
+        align: "left",
+        sortable: "true",
+        filterControl: "select",
+        visible: true,
+      },
+      {
+        field: "shipped_items",
+        title: "Enviados",
+        width: 20,
+        align: "center",
+        sortable: "true",
+        footerFormatter: "amountFooterFormatterInteger",
+        filterControl: "input",
+        visible: true,
+      },
+      {
+        field: "revenue",
+        title: "Receita",
+        width: 20,
+        align: "right",
+        sortable: "true",
+        formatter: "amountFormatter",
+        footerFormatter: "amountFooterFormatter",
+        filterControl: "input",
+        visible: true,
+      },
+      {
+        field: "commission_earnings",
+        title: "Comissão",
+        width: 20,
+        align: "right",
+        sortable: "true",
+        formatter: "amountFormatter",
+        footerFormatter: "amountFooterFormatter",
+        filterControl: "input",
+        visible: true,
+      },
+      {
+        field: "fee_rate",
+        title: "Taxa",
+        width: 20,
+        align: "right",
+        sortable: "true",
+        formatter: "amountFormatter",
+        filterControl: "input",
+        visible: true,
+      },
+    ],
+    data: resultContent,
+  });
+
+  // set logout button
+  $("button[name=clearSearch]").children()[0].remove();
+  $("button[name=clearSearch]").append(
+    '<i class="fa font-weight-bold font-monospace">SAIR</i>'
+  );
+  $("button[name=clearSearch]").removeClass('btn-secondary');
+  $("button[name=clearSearch]").addClass('btn-outline-secondary');
+  if (!$("button[name=clearSearch]").hasClass("opacity-75")) {
+    $("button[name=clearSearch]").addClass("opacity-75");
+  }
+  if (apiKeyStored) {
+    $("button[name=clearSearch]").removeClass("visually-hidden");
+    $("button[name=clearSearch]").addClass("visible");
+  } else {
+    $("button[name=clearSearch]").removeClass("visible");
+    $("button[name=clearSearch]").addClass("visually-hidden");
+  }
+  $("button[name=clearSearch]").on("click", removePassword);
+
+  $("input[type=checkbox]").on("click", () => {
+    fixFooter();
+  });
+  fixFooter();
+}
+
+function createContentTableAmazonRealtime() {
+  let tableHeight = "";
+  if (resultContent.length > 10) {
+    tableHeight = window.innerHeight * 0.95;
+  }
+
+  $("#content-table").bootstrapTable("destroy");
+  $("#content-table").bootstrapTable({
+    locale: "pt-BR",
+    toolbar: "#toolbar",
+    pagination: true,
+    pageList: "[10, 100, 1000, all]",
+    pageSize: 100,
+    formatClearSearch: function () {
+      return "Remove a senha salva e volta para a tela inicial";
+    },
+    formatSearch: function () {
+      return "Pesquisar";
+    },
+    formatColumns: function () {
+      return "Colunas";
+    },
+    formatAllRows: function () {
+      return "Todos";
+    },
+    formatShowingRows: function (pageFrom, pageTo, totalRows) {
+      return `Mostrando ${pageFrom} a ${pageTo} de ${totalRows} registros`;
+    },
+    formatRecordsPerPage: function (pageNumber) {
+      return `${pageNumber} registros por página`;
+    },
+    formatNoMatches: function (pageNumber) {
+      return `Nenhum resultado`;
+    },
+    searchAccentNeutralise: true,
+    searchHighlight: true,
+    showFooter: true,
+    headerStyle: "headerStyleAmazonRealtime",
+    footerStyle: "headerStyleAmazonRealtime",
+    showColumns: true,
+    clickToSelect: true,
+    filterControl: true,
+    reorderableColumns: true,
+    showSearchClearButton: true,
+    height: tableHeight,
+    classes: "table table-hover table-bordered table-striped",
+    columns: [
+      {
+        field: "product_title",
+        title: "Produto",
+        width: 400,
+        align: "left",
+        sortable: "true",
+        footerFormatter: "totalFormatter",
+        filterControl: "input",
+        visible: true,
+      },
+      {
+        field: "tracking_id",
+        title: "Tag ID",
+        width: 20,
+        align: "left",
+        sortable: "true",
+        filterControl: "select",
+        visible: true,
+      },
+      {
+        field: "ordered_items",
+        title: "Pedidos",
+        width: 20,
+        align: "center",
+        sortable: "true",
+        footerFormatter: "amountFooterFormatterInteger",
+        filterControl: "input",
+        visible: true,
+      },
+      {
+        field: "price",
+        title: "Preço",
+        width: 20,
+        align: "right",
+        sortable: "true",
+        formatter: "amountFormatter",
+        footerFormatter: "amountFooterFormatter",
+        filterControl: "input",
+        visible: true,
+      },
+    ],
+    data: resultContent,
+  });
+
+  // set logout button
+  $("button[name=clearSearch]").children()[0].remove();
+  $("button[name=clearSearch]").append(
+    '<i class="fa font-weight-bold font-monospace">SAIR</i>'
+  );
+  $("button[name=clearSearch]").removeClass('btn-secondary');
+  $("button[name=clearSearch]").addClass('btn-outline-secondary');
+  if (!$("button[name=clearSearch]").hasClass("opacity-75")) {
+    $("button[name=clearSearch]").addClass("opacity-75");
+  }
+  if (apiKeyStored) {
+    $("button[name=clearSearch]").removeClass("visually-hidden");
+    $("button[name=clearSearch]").addClass("visible");
+  } else {
+    $("button[name=clearSearch]").removeClass("visible");
+    $("button[name=clearSearch]").addClass("visually-hidden");
+  }
+  $("button[name=clearSearch]").on("click", removePassword);
+
+  $("input[type=checkbox]").on("click", () => {
+    fixFooter();
+  });
+  fixFooter();
+}
+
+function headerStyleAmazonEarnings(column) {
+  return {
+    product_title: {
+      css: { background: "azure", "font-size": "large" },
+    },
+    tag_value: {
+      css: { background: "azure", "font-size": "large" },
+    },
+    revenue: {
+      css: { background: "azure", "font-size": "large" },
+    },
+    commission_earnings: {
+      css: { background: "azure", "font-size": "large" },
+    },
+    fee_rate: {
+      css: { background: "azure", "font-size": "large" },
+    },
+    shipped_items: {
+      css: { background: "azure", "font-size": "large" },
+    },
+  }[column.field];
+}
+
+function headerStyleAmazonRealtime(column) {
+  return {
+    product_title: {
+      css: { background: "azure", "font-size": "large" },
+    },
+    tracking_id: {
+      css: { background: "azure", "font-size": "large" },
+    },
+    price: {
+      css: { background: "azure", "font-size": "large" },
+    },
+    ordered_items: {
+      css: { background: "azure", "font-size": "large" },
+    },
+  }[column.field];
+}
+
+//#endregion
+
+//#region all
+
 // simple hack to fix bootstrap-table footer positioning issue when generating table
 function fixFooter() {
   setTimeout(() => {
@@ -475,10 +820,14 @@ function dateSorter(a, b) {
 }
 
 function amountFormatter(data) {
-  return parseFloat(data).toLocaleString("pt-BR", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
+  if (isNaN(data)) {
+    return '-';
+  } else {
+    return parseFloat(data).toLocaleString("pt-BR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  }
 }
 
 function totalFormatter(data) {
@@ -500,6 +849,21 @@ function amountFooterFormatter(data) {
     });
 }
 
+function amountFooterFormatterInteger(data) {
+  var field = this.field;
+  return data
+    .map(function (row) {
+      return +row[field];
+    })
+    .reduce(function (sum, i) {
+      return sum + i;
+    }, 0)
+    .toLocaleString("pt-BR", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    });
+}
+
 function statusFormatter(data) {
   switch (data) {
     case "pending":
@@ -511,38 +875,6 @@ function statusFormatter(data) {
   }
 }
 
-function headerStyle(column) {
-  return {
-    id: {
-      css: { background: "azure", "font-size": "large" },
-    },
-    platformName: {
-      css: { background: "azure", "font-size": "large" },
-    },
-    advertiserName: {
-      css: { background: "azure", "font-size": "large" },
-    },
-    commissionAmount: {
-      css: { background: "azure", "font-size": "large" },
-    },
-    saleAmount: {
-      css: { background: "azure", "font-size": "large" },
-    },
-    clickRefs: {
-      css: { background: "azure", "font-size": "large" },
-    },
-    publisherUrl: {
-      css: { background: "azure", "font-size": "large" },
-    },
-    transactionDate: {
-      css: { background: "azure", "font-size": "large" },
-    },
-    commissionStatus: {
-      css: { background: "azure", "font-size": "large" },
-    },
-  }[column.field];
-}
-
-//#endregion
+//#endregion 
 
 //#endregion
