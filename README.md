@@ -46,7 +46,7 @@ The direct use is minimal, just because the page is mainly dinamically filled by
 It's intended to be used exclusively as a datasheet with a desktop computer, no mobile compatible. Just tolerant of some resizing.
 #### :earth_americas:	Language
 User interface is all in Brazilian Portuguese. On the other hand, all code is in English.
-#### 🔒:	Sensitive data
+#### 🔒	Sensitive data
 All sensitive data is stored in server only, mainly as environment variables, including API key for all requests.
 
 <!-- FINAL CONSIDERATIONS -->
