@@ -1,4 +1,3 @@
-// import amazonService from '../services/amazon-service.js';
 const amazonService = require("../services/amazon-service.js");
 
 async function getAmazonData(req, res) {
@@ -20,9 +19,6 @@ async function getAmazonData(req, res) {
   }
 }
 
-// export default {
-//   getAmazonData
-// }
 module.exports = {
   getAmazonData,
 };

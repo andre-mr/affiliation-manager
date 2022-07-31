@@ -1,5 +1,3 @@
-// import transactionsController from '../controllers/transactions-controller.js';
-// import updateController from '../controllers/update-controller.js';
 const transactionsController = require("../controllers/transactions-controller.js");
 const updateController = require("../controllers/update-controller.js");
 const amazonController = require("../controllers/amazon-controller.js");
@@ -49,9 +47,6 @@ const queriesList = {
   "/amazon": "Amazon",
 };
 
-// export default {
-//   setupRoutes
-// }
 module.exports = {
   setupRoutes,
 };

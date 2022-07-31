@@ -1,4 +1,3 @@
-// import fetch from 'node-fetch';
 const fetch = require("node-fetch");
 
 let startDate, endDate;
@@ -21,7 +20,7 @@ function setUrl(realtime) {
       + '&query[skip]=0'
       + '&query[sort]=day'
       + '&query[limit]=100000'
-      + '&store_id=cpetrag0f7-20';
+      + '&store_id=' + process.env.AMAZON_STORE_ID;
   } else {
     url = 'https://associados.amazon.com.br/home/reports/table.json'
       + '?query[type]=earnings'
@@ -33,11 +32,10 @@ function setUrl(realtime) {
       + '&query[last_accessed_row_index]=0'
       + '&query[group_by]=tag_id'
       + '&query[columns]=tag_value,tag_id,product_title,price,fee_rate,shipped_items,revenue,commission_earnings,asin,returned_items,returned_revenue,returned_earnings'
-      // + '&query[group]='
       + '&query[skip]=0'
       + '&query[sort]=shipped_items'
       + '&query[limit]=100000'
-      + '&store_id=cpetrag0f7-20';
+      + '&store_id=' + process.env.AMAZON_STORE_ID;
   }
 }
 
@@ -63,7 +61,6 @@ async function getAmazonData(queryStartDate, queryEndDate) {
   return result;
 }
 
-// export default { getAmazonData };
 module.exports = {
   getAmazonData,
 };

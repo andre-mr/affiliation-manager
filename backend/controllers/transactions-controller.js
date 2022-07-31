@@ -1,4 +1,3 @@
-// import transactionsService from '../services/transactions-service.js';
 const transactionsService = require("../services/transactions-service.js");
 
 async function getTransactionsList(req, res) {
@@ -19,9 +18,6 @@ async function getTransactionsList(req, res) {
   }
 }
 
-// export default {
-//   getTransactionsList
-// }
 module.exports = {
   getTransactionsList,
 };

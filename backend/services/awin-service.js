@@ -1,8 +1,3 @@
-// import fetch from 'node-fetch';
-// import awinDb from '../database/awin-db.js';
-// import dotenv from 'dotenv';
-// dotenv.config();
-// const dotenv = require('dotenv').config();
 const fetch = require("node-fetch");
 const awinDb = require("../database/awin-db.js");
 
@@ -145,7 +140,6 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-//export default { getTransactions, getAdvertisers, updateRecentTransactions, updateAllTransactions }
 module.exports = {
   getTransactions,
   getAdvertisers,

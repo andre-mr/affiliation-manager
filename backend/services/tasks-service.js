@@ -1,5 +1,3 @@
-// import cron from 'node-cron';
-// import awin from './awin-service.js';
 const cron = require("node-cron");
 const awin = require("./awin-service.js");
 
@@ -10,9 +8,6 @@ function scheduleTasks() {
   });
 }
 
-// export default {
-//   scheduleTasks
-// }
 module.exports = {
   scheduleTasks,
 };

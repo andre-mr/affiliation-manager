@@ -1,4 +1,3 @@
-// import mysql from 'mysql2/promise.js';
 const mysql = require("mysql2/promise.js");
 
 async function insertTransactionsDb(values) {
@@ -43,9 +42,6 @@ async function sqlInsert(insertStatement, values) {
   return true;
 }
 
-// export default {
-//   insertTransactionsDb, insertAdvertisersDb, updateAdvertisersDb
-// }
 module.exports = {
   insertTransactionsDb,
   insertAdvertisersDb,

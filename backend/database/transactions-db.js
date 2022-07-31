@@ -1,4 +1,3 @@
-// import mysql from 'mysql2/promise.js';
 const mysql = require("mysql2/promise.js");
 
 const selectQueries = {
@@ -30,5 +29,4 @@ async function sqlSelect(selectStatement) {
   return queryResult;
 }
 
-// export default { getTransactionsDb, sqlSelect };
 module.exports = { getTransactionsDb, sqlSelect };

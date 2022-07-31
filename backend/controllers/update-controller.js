@@ -1,7 +1,3 @@
-// import awinService from '../services/awin-service.js';
-// import dotenv from 'dotenv';
-// dotenv.config();
-// const dotenv = require('dotenv').config();
 const awinService = require("../services/awin-service.js");
 
 async function updateServer(req, res) {
@@ -19,9 +15,6 @@ async function updateServer(req, res) {
   }
 }
 
-// export default {
-//   updateServer
-// }
 module.exports = {
   updateServer,
 };

@@ -1,4 +1,3 @@
-// import transactionsDb from "../database/transactions-db.js";
 const transactionsDb = require("../database/transactions-db.js");
 
 async function getTransactions(startDate, endDate) {
@@ -27,9 +26,6 @@ function createDefaultDate(daysAgo) {
   return targetDateStr;
 }
 
-// export default {
-//   getTransactions
-// }
 module.exports = {
   getTransactions,
 };
