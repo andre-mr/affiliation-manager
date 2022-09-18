@@ -42,6 +42,10 @@ function startup() {
   }
 }
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 function populatePresetSearches() {
   let todayStartDate = new Date(); // today 0h
   let todayStartDateStr = `${todayStartDate.getFullYear()}-${(
@@ -147,7 +151,8 @@ function populateQueriesSelector() {
         setDefaultDate();
         querySelector.dispatchEvent(new Event("change"));
         console.log('running first update server')
-        updateServerAwin();
+
+        updateServerAwin(1000);
 
         return true;
       } else {
@@ -259,7 +264,7 @@ function refreshData(e) {
   }
 }
 
-function updateServerAwin() {
+async function updateServerAwin(sleepTime) {
   if (!apiKey) {
     showLogin(true);
     return;
@@ -269,6 +274,9 @@ function updateServerAwin() {
   searchButton.disabled = true;
   searchButton.classList.remove("opacity-75");
   searchButton.classList.add("opacity-50");
+  if (sleepTime && sleepTime > 0){
+    await sleep(sleepTime);
+  }
   updateServerButton.innerHTML = "Atualizando...";
   fetch(`${urlDomain}/awin/update?apiKey=${apiKey}`)
     .then(function (response) {

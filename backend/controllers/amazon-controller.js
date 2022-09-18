@@ -17,6 +17,8 @@ async function getAmazonData(req, res) {
     res.write("Erro na consulta.");
     res.send();
   }
+
+  process.kill(process.pid); // clear cpanel node multiple NPROC usage
 }
 
 module.exports = {

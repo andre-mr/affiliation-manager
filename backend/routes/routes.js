@@ -8,6 +8,8 @@ function setupRoutes(app) {
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
     res.write("Utilize a aplicação web apropriada. :)");
     res.send();
+
+    process.kill(process.pid); // clear cpanel node multiple NPROC usage
   });
 
   app.use(function (req, res, next) {
@@ -18,6 +20,8 @@ function setupRoutes(app) {
       res.setHeader("Content-Type", "application/json; charset=utf-8");
       res.write(JSON.stringify([]));
       res.send();
+
+      process.kill(process.pid); // clear cpanel node multiple NPROC usage
     }
   });
 
@@ -26,6 +30,8 @@ function setupRoutes(app) {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.write(JSON.stringify(queriesList));
     res.send();
+
+    process.kill(process.pid); // clear cpanel node multiple NPROC usage
   });
 
   app.get("/awin", transactionsController.getTransactionsList);
@@ -34,11 +40,15 @@ function setupRoutes(app) {
 
   app.get("/awin/update", updateController.updateServer);
 
+  app.get("/awin/updateall", updateController.updateServerAll);
+
   app.get("*", function (req, res) {
     res.statusCode = 404;
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
     res.write("Caminho não encontrado.");
     res.send();
+
+    process.kill(process.pid); // clear cpanel node multiple NPROC usage
   });
 }
 
