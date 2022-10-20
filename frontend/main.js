@@ -274,7 +274,7 @@ async function updateServerAwin(sleepTime) {
   searchButton.disabled = true;
   searchButton.classList.remove("opacity-75");
   searchButton.classList.add("opacity-50");
-  if (sleepTime && sleepTime > 0){
+  if (sleepTime && sleepTime > 0) {
     await sleep(sleepTime);
   }
   updateServerButton.innerHTML = "Atualizando...";
@@ -883,6 +883,6 @@ function statusFormatter(data) {
   }
 }
 
-//#endregion 
+//#endregion
 
 //#endregion

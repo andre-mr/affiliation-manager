@@ -7,14 +7,14 @@ async function updateServer(req, res) {
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
     res.write("Servidor atualizado");
     res.send();
+    setTimeout(() => { process.kill(process.pid) }, 2000); // clear cpanel node multiple NPROC usage
   } else {
     res.statusCode = 400;
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
     res.write("Erro na atualização.");
     res.send();
+    setTimeout(() => { process.kill(process.pid) }, 100); // clear cpanel node multiple NPROC usage
   }
-
-  process.kill(process.pid); // clear cpanel node multiple NPROC usage
 }
 
 async function updateServerAll(req, res) {
@@ -24,14 +24,14 @@ async function updateServerAll(req, res) {
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
     res.write("Servidor atualizado");
     res.send();
+    setTimeout(() => { process.kill(process.pid) }, 2000); // clear cpanel node multiple NPROC usage
   } else {
     res.statusCode = 400;
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
     res.write("Erro na atualização.");
     res.send();
+    setTimeout(() => { process.kill(process.pid) }, 100); // clear cpanel node multiple NPROC usage
   }
-
-  process.kill(process.pid); // clear cpanel node multiple NPROC usage
 }
 
 module.exports = {
